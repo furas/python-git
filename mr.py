@@ -7,9 +7,13 @@ import json
 import fnmatch
 import re
 import subprocess
+import argparse
 
-
-def find_repos(path, sorted=True):
+def find_repos(path, sort=True, regex=None, fnmatch=None):
+    '''
+    find all folders with .git subfolder 
+    and filter using regex or fnmatch
+    '''
 
     repos = []
     
@@ -17,41 +21,54 @@ def find_repos(path, sorted=True):
         if '.git' in folders:
             repos.append(root)
 
-    if sorted:
+    if sort:
         repos.sort()
         
-    if argument.regex:
-        repos = filter_regex(repos, argument.regex)
-    elif argument.fnmatch:
-        repos = filter_fnmatch(repos, argument.fnmatch)
+    if regex:
+        repos = filter_regex(repos, regex)
+    elif fnmatch:
+        repos = filter_fnmatch(repos, fnmatch)
     
     return repos
 
 def filter_regex(repos, pattern):
+    '''
+    filter list of repos using regex
+    '''
     return filter(lambda x:re.search(pattern, x), repos)
 
 def filter_fnmatch(repos, pattern):
+    '''
+    filter list of repos using filename match
+    '''
     return fnmatch.filter(repos, pattern)
 
 def display(repos):
-    
+    '''
+    display list of repos using colors 
+    '''
     for repo in repos:
         pos = repo.rfind('/')+1    
         print(C.Fore.LIGHTBLACK_EX, repo[:pos], C.Fore.WHITE, repo[pos:], sep='')
 
 def save(cfg, filename='~/.config/mr.cfg'):
+    '''
+    save list of repos in '~/.config/mr.cfg' as JSON
+    '''
+    
     filename = os.path.expanduser(filename)
     with open(filename, 'w') as f:
         json.dump(list(cfg), f)
 
 def load(filename='~/.config/mr.cfg'):
+    '''
+    load list of repos from '~/.config/mr.cfg' as JSON
+    '''
     filename = os.path.expanduser(filename)
     with open(filename, 'r') as f:
         return json.load(f)
 
 # ---------------------------------------------------------------------
-
-import argparse
 
 parser = argparse.ArgumentParser()
 
@@ -71,9 +88,9 @@ subparser_find.add_argument('-s', '--save', default='~/.config/mr.cfg', help='sa
 
 subparser_ls = subparsers.add_parser('ls', help='list repos')
 
-subparser_st = subparsers.add_parser('st', help='list repos')
-subparser_st.add_argument('-a', action='store_true', help='need commit')
-subparser_st.add_argument('-b', action='store_true', help='need commit')
+subparser_st = subparsers.add_parser('st', help='list status - count modified files')
+subparser_st.add_argument('-a', action='store_true', help='only with modified files')
+subparser_st.add_argument('-b', action='store_true', help='only without modified files')
 
 subparser_sh = subparsers.add_parser('sh', help='shell command')
 subparser_sh.add_argument('CMD', help='use mu_repo', default='')
@@ -99,7 +116,7 @@ elif argument.fnmatch:
 
 
 if argument.command == 'find':
-    repos = find_repos(os.path.expanduser(argument.folder))
+    repos = find_repos(os.path.expanduser(argument.folder), argument.regex, argument.fnmatch)
     
     if argument.save:
         save(repos, argument.save)
@@ -157,4 +174,4 @@ elif argument.command == 'sh':
         result = process.communicate()[0].decode('utf-8').strip()
         print(result)
 else:
-    parser.help()
+    parser.print_help()

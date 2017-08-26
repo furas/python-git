@@ -17,19 +17,49 @@ Required: colorama (`pip install colorama`)
 It can use `~/.mu_repo` if you have `mu_repo` already installed (`pip install mu_repo`)
 
 
-    mr.py find 
-    mr.py ls
+Normal command
+
+    mr.py find  # find all repos in ~ ($HOME) folder and save in ~/.config/.mr.cfg
+    mr.py ls    # list all repos from ~/.config/.mr.cfg
+    
+    # count modified files in every repos (similar to `git status --short | wc -l` or `gr st`)    
+    
+    mr.py st    
+    mr.py st -a  # show only with midified files
+    mr.py st -b  # show only without midified files
+    
+    
+Shell command (with parenthesis if piping or space)    
+
     mr.py sh CMD
+    mr.py sh "CMD ARGS"
     mr.py sh "CMD1|CMD2"
     
+    ex. 
+    
+    mr.py sh ls
+    mr.py sh "ls -al"
+    mr.py sh "git status --short | wc -l"
+
+Using regex or filename match (have to be before command)
+
     mr.py --regex PATTERN ls
     mr.py --regex PATTERN sh CMD
     
-    ex. mr.py --regex python ls
-    
     mr.py --fnmatch PATTERN ls
     mr.py --fnmatch PATTERN sh CMD
+
+    ex. 
     
-    ex. mr.py --regex python* ls
-    ex. mr.py --regex *python ls
+    mr.py --regex python ls
+    mr.py --regex ^python sh "ls -al"
+    mr.py --regex python$ st
     
+    mr.py --fnmatch python* ls
+    mr.py --fnmatch *python ls
+    
+    mr.py --fnmatch python* sh "ls -al"
+    mr.py --fnmatch *python sh "ls -al"
+    
+    mr.py --fnmatch python* sh "git status --short"
+    mr.py --fnmatch *python sh "git status --short"
