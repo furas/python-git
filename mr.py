@@ -89,11 +89,15 @@ subparser_find.add_argument('-s', '--save', default='~/.config/mr.cfg', help='sa
 subparser_ls = subparsers.add_parser('ls', help='list repos')
 
 subparser_st = subparsers.add_parser('st', help='list status - count modified files')
-subparser_st.add_argument('-a', action='store_true', help='only with modified files')
-subparser_st.add_argument('-b', action='store_true', help='only without modified files')
+subparser_st.add_argument('-m', '--modified', action='store_true', help='show only with modified files')
+subparser_st.add_argument('-o', '--other', action='store_true', help='show only not modified files')
+subparser_st.add_argument('-c', '--count', action='store_true', help='show only count')
 
 subparser_sh = subparsers.add_parser('sh', help='shell command')
 subparser_sh.add_argument('CMD', help='use mu_repo', default='')
+
+subparser_git = subparsers.add_parser('git', help='list status - count modified files')
+subparser_git.add_argument('ARGS', nargs=argparse.REMAINDER, help='execute git')
 
 argument = parser.parse_args(sys.argv[1:])
 
@@ -134,17 +138,17 @@ elif argument.command == 'st':
 
         os.chdir(repo)
         process = subprocess.run(command, check=True, stdout=subprocess.PIPE)
-        result = process.stdout.decode('utf-8').strip()
+        result = process.stdout.decode('utf-8')
         
         if result:
-            value = len(result.split('\n'))
+            value = len(result.strip().split('\n'))
         else:
             value = 0
         
-        if argument.a and value == 0:
+        if argument.modified and value == 0:
             continue
             
-        if argument.b and value != 0:
+        if argument.other and value != 0:
             continue
 
         pos = repo.rfind('/')+1    
@@ -155,7 +159,29 @@ elif argument.command == 'st':
         else: 
             color = C.Fore.RED
 
-        print(color, value)
+        if argument.count:
+            print(color, value, sep='')
+        else:
+            print()
+            print(color, result, sep='')
+    
+elif argument.command == 'git': 
+    
+    command = ['git']
+    
+    if argument.ARGS:
+        command += argument.ARGS
+
+    for repo in repos:
+        pos = repo.rfind('/')+1    
+        print(C.Fore.LIGHTBLACK_EX, repo[:pos], C.Fore.WHITE, repo[pos:], sep='')
+        
+        os.chdir(repo)
+
+        process = subprocess.run(command, check=True, stdout=subprocess.PIPE)
+        result = process.stdout.decode('utf-8')#.strip()
+
+        print(result)
     
 elif argument.command == 'sh': 
     for repo in repos:

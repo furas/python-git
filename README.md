@@ -41,6 +41,14 @@ Shell command (with parenthesis if piping or space)
     mr.py sh "ls -al"
     mr.py sh "git status --short | wc -l"
 
+Git command (no need parenthesis, but can't use piping)
+
+    mr.py git ARGS
+    
+    ex.
+    
+    mr.py git status --short
+    
 Using regex or filename match (have to be before command)
 
     mr.py --regex PATTERN ls
@@ -52,8 +60,9 @@ Using regex or filename match (have to be before command)
     ex. 
     
     mr.py --regex python ls
-    mr.py --regex ^python sh "ls -al"
     mr.py --regex python$ st
+    mr.py --regex ^python sh "ls -al"
+    mr.py --regex ^python sh "cat .git/config"
     
     mr.py --fnmatch python* ls
     mr.py --fnmatch *python ls
@@ -63,3 +72,4 @@ Using regex or filename match (have to be before command)
     
     mr.py --fnmatch python* sh "git status --short"
     mr.py --fnmatch *python sh "git status --short"
+
