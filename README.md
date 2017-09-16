@@ -22,11 +22,12 @@ Normal command
     mr.py find  # find all repos in ~ ($HOME) folder and save in ~/.config/.mr.cfg
     mr.py ls    # list all repos from ~/.config/.mr.cfg
     
-    # count modified files in every repos (similar to `git status --short | wc -l` or `gr st`)    
+    # show modified files in every repos (similar to `git status --short | wc -l` or `gr st`)    
     
     mr.py st    
-    mr.py st -a  # show only with midified files
-    mr.py st -b  # show only without midified files
+    mr.py st -m  # show only with midified files (--modified)
+    mr.py st -o  # show only without midified files (--other)
+    mr.py st -c  # show only number of midified files (--count)
     
     
 Shell command (with parenthesis if piping or space)    
@@ -67,9 +68,6 @@ Using regex or filename match (have to be before command)
     mr.py --fnmatch python* ls
     mr.py --fnmatch *python ls
     
-    mr.py --fnmatch python* sh "ls -al"
     mr.py --fnmatch *python sh "ls -al"
-    
-    mr.py --fnmatch python* sh "git status --short"
     mr.py --fnmatch *python sh "git status --short"
 
