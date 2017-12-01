@@ -15,6 +15,7 @@ def find_repos(path, sort=True, regex=None, fnmatch=None):
     and filter using regex or fnmatch
     '''
 
+    path = os.path.realpath(path)
     repos = []
     
     for root, folders, files in os.walk(path):
@@ -136,7 +137,13 @@ elif argument.command == 'st':
         
     for repo in repos:
 
-        os.chdir(repo)
+        try:
+            os.chdir(repo)
+        except FileNotFoundError:
+            pos = repo.rfind('/')+1    
+            print(C.Fore.RED, "Folder doesn't exist: ", C.Fore.LIGHTBLACK_EX, repo[:pos], C.Fore.WHITE, repo[pos:], sep='')
+            continue
+            
         process = subprocess.run(command, check=True, stdout=subprocess.PIPE)
         result = process.stdout.decode('utf-8')
         
@@ -173,10 +180,16 @@ elif argument.command == 'git':
         command += argument.ARGS
 
     for repo in repos:
+        
+        try:
+            os.chdir(repo)
+        except FileNotFoundError:
+            pos = repo.rfind('/')+1    
+            print(C.Fore.RED, "Folder doesn't exist: ", C.Fore.LIGHTBLACK_EX, repo[:pos], C.Fore.WHITE, repo[pos:], sep='')
+            continue
+                    
         pos = repo.rfind('/')+1    
         print(C.Fore.LIGHTBLACK_EX, repo[:pos], C.Fore.WHITE, repo[pos:], sep='')
-        
-        os.chdir(repo)
 
         process = subprocess.run(command, check=True, stdout=subprocess.PIPE)
         result = process.stdout.decode('utf-8')#.strip()
@@ -185,10 +198,17 @@ elif argument.command == 'git':
     
 elif argument.command == 'sh': 
     for repo in repos:
+
+        try:
+            os.chdir(repo)
+        except FileNotFoundError:
+            pos = repo.rfind('/')+1    
+            print(C.Fore.RED, "Folder doesn't exist: ", C.Fore.LIGHTBLACK_EX, repo[:pos], C.Fore.WHITE, repo[pos:], sep='')
+            continue
+                    
         pos = repo.rfind('/')+1    
         print(C.Fore.LIGHTBLACK_EX, repo[:pos], C.Fore.WHITE, repo[pos:], sep='')
         
-        os.chdir(repo)
         data = None
         process = None
         for command in argument.CMD.split('|'):
